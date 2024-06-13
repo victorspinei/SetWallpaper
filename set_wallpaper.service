@@ -1,0 +1,6 @@
+[Unit]
+Description=Change wallpaper based on time of day
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/change_wallpaper.sh

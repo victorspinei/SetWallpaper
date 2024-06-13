@@ -1,0 +1,9 @@
+[Unit]
+Description=Timer to change wallpaper based on time of day
+
+[Timer]
+OnCalendar=*-*-* 07,11,17,21:00:00
+Persistent=true
+
+[Install]
+WantedBy=timers.target
