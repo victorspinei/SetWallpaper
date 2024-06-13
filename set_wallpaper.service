@@ -1,6 +1,12 @@
 [Unit]
 Description=Change wallpaper based on time of day
+After=graphical.target
 
 [Service]
-Type=oneshot
-ExecStart=/usr/local/bin/change_wallpaper.sh
+User=victor
+Environment=DISPLAY=:0
+Environment=DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/$(id -u victor)/bus
+ExecStart=/usr/local/bin/set_wallpaper.sh
+
+[Install]
+WantedBy=default.target
