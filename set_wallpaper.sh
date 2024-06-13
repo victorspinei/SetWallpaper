@@ -1,8 +1,10 @@
 #!/bin/bash
 
-# Define the target user
-TARGET_USER="victor"
-TARGET_USER_HOME="/home/$TARGET_USER"
+# Set environment variables explicitly
+export DISPLAY=:0
+export DBUS_SESSION_BUS_ADDRESS="unix:path=/run/user/$(id -u victor)/bus"
+
+echo "Starting set_wallpaper.sh"
 
 current_hour=$(date +'%H')
 
@@ -17,19 +19,18 @@ else
     time="night"
 fi
 
-echo "Setting wallpaper to: ${TARGET_USER_HOME}/Pictures/guitarwallpaper_${time}.jpg"
+wallpaper_path="/home/victor/Pictures/wallpapers/guitarwallpaper_${time}.jpg"
+echo "Setting wallpaper to: $wallpaper_path"
 
-# Get the DBUS_SESSION_BUS_ADDRESS for the target user
-USER_DBUS_ADDRESS=$(sudo -u $TARGET_USER dbus-launch | grep 'DBUS_SESSION_BUS_ADDRESS' | awk -F= '{print $2}')
-
-# Run the dbus-send command as the target user
-sudo -u $TARGET_USER DBUS_SESSION_BUS_ADDRESS=$USER_DBUS_ADDRESS dbus-send --session --dest=org.kde.plasmashell --type=method_call \
-/PlasmaShell org.kde.PlasmaShell.evaluateScript \
+# Use qdbus to set the wallpaper
+sudo -u victor DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/$(id -u victor)/bus \
+qdbus org.kde.plasmashell /PlasmaShell org.kde.PlasmaShell.evaluateScript \
 "string:
 var Desktops = desktops();
-for (i = 0; i < Desktops.length; i++) {
+for (var i=0; i<Desktops.length; i++) {
     var d = Desktops[i];
     d.wallpaperPlugin = 'org.kde.image';
     d.currentConfigGroup = Array('Wallpaper', 'org.kde.image', 'General');
-    d.writeConfig('Image', 'file://${TARGET_USER_HOME}/Pictures/guitarwallpaper_${time}.jpg');
+    d.writeConfig('Image', 'file://$wallpaper_path');
 }"
+
